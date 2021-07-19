@@ -1,0 +1,23 @@
+services:
+  samba: 
+    network_mode: host
+    image: dperson/samba
+    volumes:
+      - smb-data:/mount/smb
+    command: -p -s "camera_footage;/mount/smb;yes;no;yes" -n
+  vsftp:
+    network_mode: host
+    build: .
+    volumes:
+       - ftp-data:/home/camera-upload
+  convert:
+    network_mode: host
+    build: 
+      context: .
+      dockerfile: Convert
+    volumes:
+       - ftp-data:/mount/camera-upload
+       - smb-data:/mount/smb
+volumes:
+    ftp-data:
+    smb-data:

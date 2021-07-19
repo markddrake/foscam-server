@@ -1,0 +1,9 @@
+FROM arm64v8/node:current-alpine
+
+COPY sleep.sh /usr/sbin 
+
+RUN set -ex \
+ && chmod +x /usr/sbin/sleep.sh  \
+ && apk add --no-cache ffmpeg bash 
+
+ENTRYPOINT ["/bin/bash", "/usr/sbin/sleep.sh"]
