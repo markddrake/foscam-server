@@ -16,4 +16,4 @@ RUN set -ex \
  && mkdir /home/camera-upload/foscam \
  && chown -R virtual:virtual /home/camera-upload/
 
-ENTRYPOINT ["/sbin/tini", "-vvv","/usr/sbin/vsftpd.sh"]
+ENTRYPOINT ["/sbin/tini", "","/usr/sbin/vsftpd.sh"]

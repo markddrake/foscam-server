@@ -5,11 +5,13 @@ services:
     volumes:
       - smb-data:/mount/smb
     command: -p -s "camera_footage;/mount/smb;yes;no;yes" -n
+    restart: always
   vsftp:
     network_mode: host
     build: .
     volumes:
        - ftp-data:/home/camera-upload
+    restart: always
   convert:
     network_mode: host
     build: 
@@ -18,6 +20,7 @@ services:
     volumes:
        - ftp-data:/mount/camera-upload
        - smb-data:/mount/smb
+    restart: always
 volumes:
     ftp-data:
     smb-data:

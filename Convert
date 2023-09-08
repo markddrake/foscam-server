@@ -1,9 +1,20 @@
 FROM arm64v8/node:current-alpine
 
+RUN set -ex \
+ && apk --no-cache --no-progress add tini ffmpeg bash \
+ && mkdir -p /usr/bin/foscam/src
+
 COPY sleep.sh /usr/sbin 
 
 RUN set -ex \
- && chmod +x /usr/sbin/sleep.sh  \
- && apk add --no-cache ffmpeg bash 
+ && chmod +x /usr/sbin/sleep.sh  
 
-ENTRYPOINT ["/bin/bash", "/usr/sbin/sleep.sh"]
+WORKDIR /
+COPY src /usr/bin/foscam/src
+COPY config.json .
+
+#ENTRYPOINT ["/bin/bash", "/usr/sbin/sleep.sh"]
+#ENTRYPOINT ["/sbin/tini", "--","node","/usr/bin/foscam/src/node/index.js"]
+ENTRYPOINT ["/sbin/tini", "-w","node","/usr/bin/foscam/src/node/index.js"]
+ENTRYPOINT ["/sbin/tini", "node","/usr/bin/foscam/src/node/index.js"]
+

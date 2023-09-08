@@ -1,0 +1,19 @@
+{
+  "name": "ipcam_nvr",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "TBD"
+  },
+  "author": "Mark D Drake",
+  "license": "SEE LICENSE IN TDB.txt",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}

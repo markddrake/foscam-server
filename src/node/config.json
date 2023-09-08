@@ -1,0 +1,6 @@
+{
+   "sourceFolder"  : "/home/admin/foscam"
+ , "targetFolder"  : "/home/admin/converted"
+ , "parallelLimit" : 5
+ , "delay"         : 1
+}
