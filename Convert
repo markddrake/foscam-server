@@ -14,7 +14,7 @@ COPY src /usr/bin/foscam/src
 COPY config.json .
 
 #ENTRYPOINT ["/bin/bash", "/usr/sbin/sleep.sh"]
-#ENTRYPOINT ["/sbin/tini", "--","node","/usr/bin/foscam/src/node/index.js"]
-ENTRYPOINT ["/sbin/tini", "-w","node","/usr/bin/foscam/src/node/index.js"]
-ENTRYPOINT ["/sbin/tini", "node","/usr/bin/foscam/src/node/index.js"]
+#ENTRYPOINT ["/sbin/tini", "-vvv","node","/usr/bin/foscam/src/node/index.js"]
+ENTRYPOINT ["/sbin/tini", "-w", "node","/usr/bin/foscam/src/node/index.js"]
+#ENTRYPOINT ["/sbin/tini", "--", "node","/usr/bin/foscam/src/node/index.js"]
 
