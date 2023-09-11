@@ -129,8 +129,7 @@ class FileConverter {
 	        targetFile = path.join(pathInfo.targetFolder,`${pathInfo.recordingTime}${pathInfo.extension}`)
 		    console.log(new Date().toISOString(),`[IMAGE][${i}]`,pathInfo.sourceFile,' ==> ',targetFile)
 		    return this.moveImage(pathInfo.sourceFile,targetFile)
-		    break;timechaVENU-
-		-
+		    break;
          default:
 	       console.log(new Date().toISOString(),'[FILE]',pathInfo.sourceFile)   
 		   // awaitfsp.rm(pathInfo.sourceFile)
