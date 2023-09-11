@@ -60,6 +60,7 @@ class FileConverter {
   async moveImage(sourceFile,targetFile) {
 	
     await fsp.copyFile(sourceFile,targetFile)
+	await fsp.chmod(targetFile,'a=r')
 	await fsp.rm(sourceFile)      	
 	
   }
@@ -128,7 +129,8 @@ class FileConverter {
 	        targetFile = path.join(pathInfo.targetFolder,`${pathInfo.recordingTime}${pathInfo.extension}`)
 		    console.log(new Date().toISOString(),`[IMAGE][${i}]`,pathInfo.sourceFile,' ==> ',targetFile)
 		    return this.moveImage(pathInfo.sourceFile,targetFile)
-		    break;
+		    break;timechaVENU-
+		-
          default:
 	       console.log(new Date().toISOString(),'[FILE]',pathInfo.sourceFile)   
 		   // awaitfsp.rm(pathInfo.sourceFile)
