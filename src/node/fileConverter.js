@@ -1,4 +1,4 @@
-import fs           from "fs"
+ import fs           from "fs"
 import fsp          from "fs/promises"
 import path         from "path"
 import {spawn}      from 'child_process'
@@ -59,9 +59,13 @@ class FileConverter {
   
   async moveImage(sourceFile,targetFile) {
 	
-    await fsp.copyFile(sourceFile,targetFile)
-	await fsp.chmod(targetFile,'a=r')
-	await fsp.rm(sourceFile)      	
+	try {
+      await fsp.copyFile(sourceFile,targetFile)
+	  await fsp.chmod(targetFile,0o744)
+	  await fsp.rm(sourceFile)      	
+	} catch (e) {
+	  console.log(e)
+	}
 	
   }
   
