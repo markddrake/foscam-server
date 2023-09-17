@@ -1,8 +1,8 @@
- import fs           from "fs"
+import fs           from "fs"
 import fsp          from "fs/promises"
 import path         from "path"
 import {spawn}      from 'child_process'
-import {setTimeout} from "timers/promises"
+import {setTimeout as pSetTimeout } from "timers/promises"
 
 
 class FileConverter {
@@ -82,38 +82,53 @@ class FileConverter {
 	**
 	*/			
        
-	const mtime = await fsp.stat(sourceFile).mtime   
-	   
-	return new Promise((resolve,reject) => { 
-	  const ffmpeg = spawn('ffmpeg',[` -i ${sourceFile}`,'-codec copy','-y',targetFile],{shell:true})
-	  ffmpeg.on('exit',async (code) => {
-		const mtime1 =  await fsp.stat(sourceFile).mtime   
-		if (mtime === mtime1) {
-		  await fsp.rm(sourceFile)
-		}
-		resolve(code || 0)
-   	  })
+	const stats = await fsp.stat(sourceFile)
+    const mtime = stats.mtimeMs
 	
-      /*
-	  **
-	  ffmpeg.stderr.on('data', (data) => {
-        reject(data.toString());
-      });
-	  **
-	  */
+	return new Promise((resolve,reject) => { 
+      try {
+	    const ffmpeg = spawn('ffmpeg',[` -i ${sourceFile}`,'-codec copy','-y',targetFile],{shell:true})
+	    ffmpeg.on('exit',
+		  async (code) => {
+		    setTimeout(
+		      async(sourceFile,mtime) => {
+		        try {
+	              const stats = await fsp.stat(sourceFile)
+                  const mtime1 = stats.mtimeMs
+		          if (mtime === mtime1) {
+                    await fsp.rm(sourceFile)
+		          }
+			    } catch(e) { 
+   		          console.log(e)
+ 	            }
+	          }
+		    , 10000
+			, sourceFile
+			, mtime
+            )
+	        resolve(code || 0)
+		  })
+
+        /*
+  	    **
+	    ffmpeg.stderr.on('data', (data) => {
+          reject(data.toString());
+        });
+	    **
+	    */
 			
-	  /*
-	  **
-	  ffmpeg.stdout.on('data', (data) => {
-        console.log(data.toString());
-      });
-      **
-	  */
-			
+	    /*
+	    **
+	    ffmpeg.stdout.on('data', (data) => {
+          console.log(data.toString());
+        });
+        **
+	    */
+	  } catch(e) {
+		reject(e);
+	  }		
 	})
   }
-  
-  
   
   async convertFile(i,targetFolder,file) {
 
@@ -147,8 +162,8 @@ class FileConverter {
   async convertFiles(config) {
 	  
 	while (true) {
-      console.log(new Date().toISOString(),`Moving files from "${config.sourceFolder}" to "${config.targetFolder}"`)
 	  const fileList = await this.buildFileList(path.resolve(config.sourceFolder))
+      console.log(new Date().toISOString(),`Moving ${fileList.length} files from "${config.sourceFolder}" to "${config.targetFolder}"`)
 	  const taskList = fileList.entries()
 	 
 	  const result = []
@@ -161,7 +176,7 @@ class FileConverter {
       await Promise.allSettled(workers)
 
       console.log(new Date().toISOString(),`[SLEEP] Processed ${result.length} Files.`)	
-	  await setTimeout(config.delay * 60 * 1000)
+	  await pSetTimeout(config.delay * 60 * 1000)
 	}
   }
   
