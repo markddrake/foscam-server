@@ -1,6 +1,9 @@
 {
-   "sourceFolder"  : "/mount/camera-upload/foscam"
- , "targetFolder"  :  "/mount/smb"
- , "parallelLimit" : 5
- , "delay"         : 10
+   "sourceFolder"    : "/mount/camera-upload/foscam"
+ , "targetFolder"    :  "/mount/smb"
+ , "parallelLimit"   : 5
+ , "delay"           : 10
+ , "retentionPeriod" : {
+	 "days"          : 5
+ }
 }

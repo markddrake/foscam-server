@@ -2,7 +2,10 @@ import fs           from "fs"
 import fsp          from "fs/promises"
 import path         from "path"
 import {spawn}      from 'child_process'
-import {setTimeout as pSetTimeout } from "timers/promises"
+import {
+  setInterval
+, setTimeout
+}                   from "timers/promises"
 
 
 class FileConverter {
@@ -88,26 +91,19 @@ class FileConverter {
 	return new Promise((resolve,reject) => { 
       try {
 	    const ffmpeg = spawn('ffmpeg',[` -i ${sourceFile}`,'-codec copy','-y',targetFile],{shell:true})
-	    ffmpeg.on('exit',
-		  async (code) => {
-		    setTimeout(
-		      async(sourceFile,mtime) => {
-		        try {
-	              const stats = await fsp.stat(sourceFile)
-                  const mtime1 = stats.mtimeMs
-		          if (mtime === mtime1) {
-                    await fsp.rm(sourceFile)
-		          }
-			    } catch(e) { 
-   		          console.log(e)
- 	            }
-	          }
-		    , 10000
-			, sourceFile
-			, mtime
-            )
-	        resolve(code || 0)
-		  })
+	    ffmpeg.on('exit',async (code) => {
+	      resolve(code || 0)
+		  await setTimeout(10000)
+	      try {
+            const stats = await fsp.stat(sourceFile)
+            const mtime1 = stats.mtimeMs
+		    if (mtime === mtime1) {
+              await fsp.rm(sourceFile)
+		    }
+	      } catch(e) { 
+   		    console.log(e)
+ 	      }
+		})
 
         /*
   	    **
@@ -161,24 +157,31 @@ class FileConverter {
   
   async convertFiles(config) {
 	  
-	while (true) {
-	  const fileList = await this.buildFileList(path.resolve(config.sourceFolder))
-      console.log(new Date().toISOString(),`Moving ${fileList.length} files from "${config.sourceFolder}" to "${config.targetFolder}"`)
-	  const taskList = fileList.entries()
+    const fileList = await this.buildFileList(path.resolve(config.sourceFolder))
+    console.log(new Date().toISOString(),`Moving ${fileList.length} files from "${config.sourceFolder}" to "${config.targetFolder}"`)
+	const taskList = fileList.entries()
 	 
-	  const result = []
-      const workers = Array(config.parallelLimit).fill(taskList).map(async (taskList,i) => {
-	    for (let [tidx, task] of taskList) {
-		  result.push(await this.convertFile(tidx,config.targetFolder,task))
-	    }
-	  })
+	const result = []
+    const workers = Array(config.parallelLimit).fill(taskList).map(async (taskList,i) => {
+	  for (let [tidx, task] of taskList) {
+	    result.push(await this.convertFile(tidx,config.targetFolder,task))
+	  }
+	})
 
-      await Promise.allSettled(workers)
+    await Promise.allSettled(workers)
 
-      console.log(new Date().toISOString(),`[SLEEP] Processed ${result.length} Files.`)	
-	  await pSetTimeout(config.delay * 60 * 1000)
+    console.log(new Date().toISOString(),`[SLEEP] Processed ${result.length} Files.`)	
+  }
+  
+  async initialize(config) {
+  
+    const interval = config.delay * 60 * 1000
+    await this.convertFiles(config)	
+	for await (const i of setInterval(interval)) {
+      await this.convertFiles(config)	
 	}
   }
+  
   
 }
 
